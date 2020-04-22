@@ -6,6 +6,8 @@ import { TaskStatusValidationPipe } from './pipes/task-validation.pipe';
 import { GetTasksFilteredDto } from './dto/get-task-filter.dto';
 import { Task } from './task.entity';
 import { TaskStatus } from './task.status.enum';
+import { GetUser } from 'src/auth/get-user.decorator';
+import { User } from 'src/auth/user.entity';
 
 @Controller('tasks')
 @UseGuards(AuthGuard())
@@ -13,8 +15,11 @@ export class TasksController {
     constructor(private tasksService: TasksService) {}
         
         @Get()
-        getTasks(@Query(ValidationPipe) filterDto: GetTasksFilteredDto): Promise<Task[]> { 
-        return this.tasksService.getTasks(filterDto);  
+        getTasks(
+            @Query(ValidationPipe) filterDto: GetTasksFilteredDto,
+            @GetUser() user: User
+            ): Promise<Task[]> { 
+        return this.tasksService.getTasks(filterDto, user);  
         }
 
         @Get('/:id')
@@ -24,8 +29,11 @@ export class TasksController {
 
         @Post()
         @UsePipes(ValidationPipe)
-        createTask(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
-           return this.tasksService.createTask(createTaskDto);
+        createTask(
+            @GetUser() user: User,
+            @Body() createTaskDto: CreateTaskDto
+            ): Promise<Task> {
+           return this.tasksService.createTask( createTaskDto, user);
         }
 
         @Delete('/:id')
