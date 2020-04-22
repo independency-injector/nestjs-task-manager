@@ -18,8 +18,8 @@ export class TasksService {
         return this.taskRepository.getTasks(filterDto, user);
     }
 
-    async getTaskById(id: number): Promise<Task> {
-        const foundTask = await this.taskRepository.findOne(id);
+    async getTaskById(id: number, user: User): Promise<Task> {
+        const foundTask = await this.taskRepository.findOne( {where: { id: id, userId: user.id} });
         if(!foundTask) throw new NotFoundException('There is no such task');
 
         return foundTask;
@@ -36,14 +36,9 @@ export class TasksService {
         }
     }
 
-    async updateTaskStatus(id: number, status: TaskStatus): Promise<Task> {
-        const foundTask = await this.getTaskById(id);
+    async updateTaskStatus(id: number, status: TaskStatus, user: User): Promise<Task> {
+        const foundTask = await this.getTaskById(id, user);
         foundTask.status = status;
         return await foundTask.save();
     }
-    // updateTaskStatus(id: string, status: TaskStatus): Task {
-    //     const task = this.getTaskById(id);
-    //     task.status = status;
-    //     return task;
-    // }
 }
